@@ -97,7 +97,7 @@
     "primary": {
       "type": "button",
       "label": "Download",
-      "href": "#"
+      "href": "https://example.com"
     }
   },
   "contextual": {
