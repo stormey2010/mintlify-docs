@@ -1,0 +1,871 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>JARVIS | Advanced Personal AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg-0: #05070d;
+        --bg-1: #0a1222;
+        --bg-2: #0d1b2a;
+        --ink: #eef6ff;
+        --muted: #a6b4c8;
+        --teal: #30f6d0;
+        --cyan: #3cb7ff;
+        --blue: #2f6bff;
+        --white: #ffffff;
+        --glow: rgba(60, 183, 255, 0.32);
+        --glass: rgba(15, 25, 42, 0.72);
+        --border: rgba(60, 183, 255, 0.25);
+        --shadow: 0 24px 80px rgba(7, 16, 38, 0.7);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Space Grotesk", system-ui, -apple-system, sans-serif;
+        background: radial-gradient(1400px 800px at 10% -10%, #142034 0%, transparent 60%),
+          radial-gradient(1200px 700px at 90% 10%, #0e2238 0%, transparent 62%),
+          linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 45%, var(--bg-2) 100%);
+        color: var(--ink);
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .page {
+        position: relative;
+        isolation: isolate;
+      }
+
+      .ambient-grid {
+        position: absolute;
+        inset: 0;
+        background-image: linear-gradient(rgba(60, 183, 255, 0.08) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(60, 183, 255, 0.06) 1px, transparent 1px);
+        background-size: 80px 80px;
+        opacity: 0.4;
+        mask-image: radial-gradient(circle at 40% 10%, rgba(0, 0, 0, 1) 0%, transparent 70%);
+        z-index: 0;
+      }
+
+      .glow-orb {
+        position: absolute;
+        width: 420px;
+        height: 420px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(60, 183, 255, 0.5), transparent 70%);
+        filter: blur(10px);
+        opacity: 0.6;
+        z-index: 0;
+      }
+
+      .glow-orb.orb-1 {
+        top: -120px;
+        right: -160px;
+      }
+
+      .glow-orb.orb-2 {
+        top: 45%;
+        left: -180px;
+        background: radial-gradient(circle, rgba(48, 246, 208, 0.35), transparent 70%);
+      }
+
+      .glow-orb.orb-3 {
+        bottom: -140px;
+        right: 10%;
+        background: radial-gradient(circle, rgba(47, 107, 255, 0.45), transparent 70%);
+      }
+
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        backdrop-filter: blur(20px);
+        background: linear-gradient(180deg, rgba(5, 7, 13, 0.86) 0%, rgba(5, 7, 13, 0.2) 100%);
+        border-bottom: 1px solid rgba(60, 183, 255, 0.12);
+      }
+
+      .nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 18px clamp(24px, 6vw, 90px);
+      }
+
+      .brand {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        font-size: 0.95rem;
+      }
+
+      .brand-mark {
+        width: 36px;
+        height: 36px;
+        border-radius: 12px;
+        background: radial-gradient(circle at 30% 30%, var(--teal), transparent 70%),
+          radial-gradient(circle at 70% 70%, var(--cyan), transparent 75%),
+          rgba(20, 32, 52, 0.9);
+        border: 1px solid rgba(60, 183, 255, 0.5);
+        box-shadow: 0 0 20px rgba(48, 246, 208, 0.3);
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 24px;
+        font-size: 0.95rem;
+        color: var(--muted);
+      }
+
+      .nav-links a {
+        position: relative;
+      }
+
+      .nav-links a::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: -6px;
+        width: 0;
+        height: 2px;
+        background: var(--cyan);
+        transition: width 0.3s ease;
+      }
+
+      .nav-links a:hover::after {
+        width: 100%;
+      }
+
+      .nav-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 18px;
+        border-radius: 999px;
+        background: linear-gradient(120deg, rgba(60, 183, 255, 0.2), rgba(48, 246, 208, 0.4));
+        border: 1px solid rgba(48, 246, 208, 0.6);
+        color: var(--white);
+        font-size: 0.9rem;
+        box-shadow: 0 0 25px rgba(48, 246, 208, 0.25);
+      }
+
+      main {
+        position: relative;
+        z-index: 1;
+      }
+
+      section {
+        padding: clamp(70px, 12vw, 140px) clamp(24px, 8vw, 120px);
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 40px;
+        align-items: center;
+        min-height: 85vh;
+      }
+
+      .eyebrow {
+        font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+        text-transform: uppercase;
+        letter-spacing: 0.24em;
+        font-size: 0.75rem;
+        color: var(--cyan);
+      }
+
+      h1 {
+        font-size: clamp(2.6rem, 6vw, 4.8rem);
+        line-height: 1.05;
+        margin: 18px 0 22px;
+      }
+
+      .lead {
+        font-size: clamp(1.05rem, 2vw, 1.35rem);
+        color: var(--muted);
+        max-width: 520px;
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-top: 28px;
+      }
+
+      .btn-primary {
+        padding: 14px 24px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--cyan), var(--blue));
+        color: var(--white);
+        font-weight: 600;
+        border: none;
+        box-shadow: 0 18px 40px rgba(47, 107, 255, 0.4);
+      }
+
+      .btn-secondary {
+        padding: 14px 24px;
+        border-radius: 12px;
+        border: 1px solid rgba(60, 183, 255, 0.5);
+        color: var(--ink);
+        background: rgba(9, 17, 28, 0.6);
+      }
+
+      .hero-panel {
+        background: var(--glass);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 26px;
+        box-shadow: var(--shadow);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero-panel::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 20% 10%, rgba(60, 183, 255, 0.2), transparent 60%);
+        opacity: 0.8;
+        pointer-events: none;
+      }
+
+      .panel-grid {
+        display: grid;
+        gap: 18px;
+      }
+
+      .panel-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 16px;
+        border-radius: 12px;
+        background: rgba(5, 10, 18, 0.6);
+        border: 1px solid rgba(60, 183, 255, 0.18);
+      }
+
+      .panel-item span {
+        font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+
+      .panel-item strong {
+        font-size: 1.1rem;
+        color: var(--white);
+      }
+
+      .pulse {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--teal);
+        box-shadow: 0 0 12px rgba(48, 246, 208, 0.8);
+        animation: pulse 2.5s infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+          opacity: 0.8;
+        }
+        50% {
+          transform: scale(1.7);
+          opacity: 0.3;
+        }
+      }
+
+      .section-title {
+        font-size: clamp(2rem, 4vw, 3.4rem);
+        margin-bottom: 16px;
+      }
+
+      .section-subtitle {
+        color: var(--muted);
+        max-width: 640px;
+      }
+
+      .feature-grid {
+        display: grid;
+        gap: 20px;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        margin-top: 40px;
+      }
+
+      .feature-card {
+        background: rgba(10, 20, 34, 0.75);
+        border: 1px solid rgba(60, 183, 255, 0.18);
+        border-radius: 18px;
+        padding: 24px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .feature-card::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(140deg, rgba(48, 246, 208, 0.08), transparent 55%);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+      }
+
+      .feature-card:hover::after {
+        opacity: 1;
+      }
+
+      .feature-card h3 {
+        margin-bottom: 10px;
+      }
+
+      .feature-card p {
+        color: var(--muted);
+        font-size: 0.98rem;
+      }
+
+      .setup-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 28px;
+        align-items: start;
+      }
+
+      .setup-panel {
+        background: rgba(7, 12, 22, 0.82);
+        border: 1px solid rgba(60, 183, 255, 0.28);
+        border-radius: 18px;
+        padding: 24px;
+        box-shadow: var(--shadow);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .setup-panel::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 20% 15%, rgba(60, 183, 255, 0.16), transparent 55%);
+        pointer-events: none;
+      }
+
+      .pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 16px 0 10px;
+      }
+
+      .pill {
+        padding: 8px 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(48, 246, 208, 0.6);
+        background: rgba(48, 246, 208, 0.08);
+        font-size: 0.9rem;
+        color: var(--white);
+        letter-spacing: 0.01em;
+      }
+
+      .step-list {
+        list-style: none;
+        margin: 18px 0 0;
+        padding: 0;
+        display: grid;
+        gap: 12px;
+      }
+
+      .step-item {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 12px;
+        align-items: center;
+        padding: 12px 14px;
+        border-radius: 14px;
+        border: 1px solid rgba(60, 183, 255, 0.18);
+        background: rgba(5, 10, 18, 0.65);
+      }
+
+      .step-number {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: 1px solid rgba(48, 246, 208, 0.7);
+        display: grid;
+        place-items: center;
+        font-weight: 600;
+        color: var(--teal);
+        background: rgba(48, 246, 208, 0.08);
+        font-size: 0.95rem;
+      }
+
+      .setup-metrics {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 12px;
+        margin-top: 16px;
+      }
+
+      .metric {
+        padding: 14px;
+        border-radius: 12px;
+        border: 1px solid rgba(60, 183, 255, 0.18);
+        background: rgba(9, 17, 28, 0.65);
+      }
+
+      .metric strong {
+        display: block;
+        font-size: 1.2rem;
+        margin-bottom: 6px;
+      }
+
+      .data-section {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 32px;
+        align-items: center;
+      }
+
+      .hud {
+        background: rgba(8, 15, 26, 0.8);
+        border: 1px solid rgba(60, 183, 255, 0.3);
+        border-radius: 18px;
+        padding: 24px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hud::before {
+        content: "";
+        position: absolute;
+        inset: -40% -10% auto;
+        height: 60%;
+        background: radial-gradient(circle, rgba(60, 183, 255, 0.25), transparent 70%);
+      }
+
+      .hud-chart {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 12px;
+        margin-top: 20px;
+        align-items: end;
+        height: 140px;
+      }
+
+      .bar {
+        width: 100%;
+        border-radius: 999px;
+        background: linear-gradient(180deg, rgba(48, 246, 208, 0.8), rgba(47, 107, 255, 0.4));
+        animation: rise 2.2s ease forwards;
+        transform-origin: bottom;
+        transform: scaleY(0.1);
+      }
+
+      .bar:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .bar:nth-child(3) {
+        animation-delay: 0.35s;
+      }
+      .bar:nth-child(4) {
+        animation-delay: 0.5s;
+      }
+      .bar:nth-child(5) {
+        animation-delay: 0.65s;
+      }
+
+      @keyframes rise {
+        to {
+          transform: scaleY(1);
+        }
+      }
+
+      .confidence-list {
+        display: grid;
+        gap: 16px;
+      }
+
+      .confidence-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 16px;
+        border-radius: 14px;
+        border: 1px solid rgba(60, 183, 255, 0.18);
+        background: rgba(9, 18, 30, 0.65);
+      }
+
+      .confidence-item strong {
+        font-size: 1.1rem;
+      }
+
+      .confidence-tag {
+        font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+        color: var(--teal);
+        font-size: 0.85rem;
+      }
+
+      .timeline {
+        display: grid;
+        gap: 24px;
+        margin-top: 36px;
+      }
+
+      .timeline-item {
+        display: grid;
+        gap: 14px;
+        padding: 20px;
+        border-radius: 16px;
+        background: rgba(10, 19, 33, 0.7);
+        border: 1px solid rgba(60, 183, 255, 0.22);
+      }
+
+      .cta {
+        text-align: center;
+      }
+
+      .cta-card {
+        margin-top: 32px;
+        display: inline-block;
+        padding: 30px 40px;
+        border-radius: 22px;
+        background: linear-gradient(140deg, rgba(60, 183, 255, 0.16), rgba(48, 246, 208, 0.14));
+        border: 1px solid rgba(60, 183, 255, 0.4);
+        box-shadow: 0 30px 80px rgba(9, 20, 40, 0.6);
+      }
+
+      .cta-card h3 {
+        font-size: clamp(1.6rem, 3vw, 2.4rem);
+        margin-bottom: 12px;
+      }
+
+      .cta-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        justify-content: center;
+        margin-top: 22px;
+      }
+
+      footer {
+        padding: 40px 24px 60px;
+        text-align: center;
+        color: rgba(166, 180, 200, 0.7);
+        font-size: 0.85rem;
+      }
+
+      .reveal {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: opacity 0.8s ease, transform 0.8s ease;
+      }
+
+      .reveal.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      @media (max-width: 780px) {
+        .nav-links {
+          display: none;
+        }
+        .hero {
+          min-height: auto;
+        }
+        .nav {
+          padding: 16px 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="ambient-grid" aria-hidden="true"></div>
+      <div class="glow-orb orb-1" aria-hidden="true"></div>
+      <div class="glow-orb orb-2" aria-hidden="true"></div>
+      <div class="glow-orb orb-3" aria-hidden="true"></div>
+
+      <header>
+        <nav class="nav">
+          <div class="brand">
+            <div class="brand-mark" aria-hidden="true"></div>
+            JARVIS SYSTEMS
+          </div>
+          <div class="nav-links">
+            <a href="#setup">Setup</a>
+            <a href="#capabilities">Capabilities</a>
+            <a href="#clarity">Clarity</a>
+            <a href="#trust">Reliability</a>
+          </div>
+          <a class="nav-cta" href="#activate">Activate Core</a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="hero" id="top">
+          <div class="hero-copy reveal">
+            <div class="eyebrow">Adaptive Intelligence Online</div>
+            <h1>JARVIS, now present in the real world.</h1>
+            <p class="lead">
+              A personal AI system that anticipates, orchestrates, and evolves with you. Built for those who want
+              the calm certainty of a command center and the elegance of effortless intelligence.
+            </p>
+            <div class="hero-actions">
+              <a class="btn-primary" href="#activate">Upgrade Reality</a>
+              <a class="btn-secondary" href="#capabilities">Experience the Interface</a>
+            </div>
+          </div>
+          <div class="hero-panel reveal">
+            <div class="panel-grid">
+              <div class="panel-item">
+                <span>Neural Readiness</span>
+                <strong>98.4%</strong>
+              </div>
+              <div class="panel-item">
+                <span>Active Context Threads</span>
+                <strong>12</strong>
+              </div>
+              <div class="panel-item">
+                <span>Predictive Interval</span>
+                <strong>0.32s</strong>
+              </div>
+              <div class="panel-item">
+                <span>Core Sync</span>
+                <strong>Stable</strong>
+                <div class="pulse" aria-hidden="true"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="setup">
+          <div class="setup-grid">
+            <div class="reveal">
+              <h2 class="section-title">Deploy in minutes, stay in control.</h2>
+              <p class="section-subtitle">
+                JARVIS runs where you need it: local-first for privacy, cloud-optional for reach, and hardware-aware
+                so setup never gets in the way.
+              </p>
+              <div class="pill-row">
+                <span class="pill">Local-first processing</span>
+                <span class="pill">Offline-ready modes</span>
+                <span class="pill">Private by default</span>
+              </div>
+              <ul class="step-list">
+                <li class="step-item">
+                  <div class="step-number">1</div>
+                  <div>
+                    <strong>Download & start</strong>
+                    <p class="section-subtitle">One binary, zero config. Spin up the core in under 2 minutes.</p>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-number">2</div>
+                  <div>
+                    <strong>Pair locally</strong>
+                    <p class="section-subtitle">Auto-discovers devices on your LAN. Nothing leaves your network unless you allow it.</p>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-number">3</div>
+                  <div>
+                    <strong>Expand on demand</strong>
+                    <p class="section-subtitle">Flip on cloud connectors or keep it offline. Your topology, your rules.</p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="setup-panel reveal">
+              <div class="eyebrow">Rapid Setup Briefing</div>
+              <h3 style="margin-top: 12px;">What you get on day one</h3>
+              <div class="setup-metrics">
+                <div class="metric">
+                  <strong>5 min</strong>
+                  <span class="section-subtitle">From download to active core.</span>
+                </div>
+                <div class="metric">
+                  <strong>Local</strong>
+                  <span class="section-subtitle">Data stays on your hardware unless toggled.</span>
+                </div>
+                <div class="metric">
+                  <strong>Zero trust+</strong>
+                  <span class="section-subtitle">Signed binaries, audit trails, reversible switches.</span>
+                </div>
+              </div>
+              <div class="feature-grid" style="margin-top: 22px;">
+                <article class="feature-card" style="min-height: 0;">
+                  <h3>Plug-in sensors</h3>
+                  <p>Attach cameras, mics, or IoT nodes locally. Routing stays on your subnet by default.</p>
+                </article>
+                <article class="feature-card" style="min-height: 0;">
+                  <h3>Operator console</h3>
+                  <p>Browser-based control with no installs; works offline via local host fallback.</p>
+                </article>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="capabilities">
+          <div class="reveal">
+            <h2 class="section-title">Capability revealed in layers.</h2>
+            <p class="section-subtitle">
+              From real-time decisions to ambient automation, JARVIS behaves like a living interface. Every response
+              feels anticipated, every panel arrives with purpose.
+            </p>
+          </div>
+          <div class="feature-grid">
+            <article class="feature-card reveal">
+              <h3>Contextual Orbit</h3>
+              <p>Understands your environment and priorities, dynamically reshaping workflows around your intent.</p>
+            </article>
+            <article class="feature-card reveal">
+              <h3>Predictive Precision</h3>
+              <p>Surfaces outcomes before you ask, balancing clarity with proactive execution.</p>
+            </article>
+            <article class="feature-card reveal">
+              <h3>Ambient Orchestration</h3>
+              <p>Coordinates devices, schedules, and systems with a quiet, continuous intelligence.</p>
+            </article>
+            <article class="feature-card reveal">
+              <h3>Holographic Memory</h3>
+              <p>Recall the exact moment, message, or metric with a spatial, visual memory layer.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="clarity">
+          <div class="data-section">
+            <div class="reveal">
+              <h2 class="section-title">Clarity through intelligent feedback.</h2>
+              <p class="section-subtitle">
+                Visualize priorities as the system runs. JARVIS surfaces signals, then distills them into decisive,
+                calm direction.
+              </p>
+              <div class="timeline">
+                <div class="timeline-item">
+                  <strong>Signal Capture</strong>
+                  <span class="section-subtitle">Multimodal sensors align to your environment in real time.</span>
+                </div>
+                <div class="timeline-item">
+                  <strong>Insight Synthesis</strong>
+                  <span class="section-subtitle">Patterns emerge as the interface refines what matters.</span>
+                </div>
+                <div class="timeline-item">
+                  <strong>Action Delegation</strong>
+                  <span class="section-subtitle">Clear options appear, already prioritized and ready.</span>
+                </div>
+              </div>
+            </div>
+            <div class="hud reveal">
+              <div class="eyebrow">Realtime Command Readout</div>
+              <h3 style="margin-top: 12px;">Operational Focus</h3>
+              <div class="hud-chart" aria-hidden="true">
+                <div class="bar" style="height: 60%;"></div>
+                <div class="bar" style="height: 82%;"></div>
+                <div class="bar" style="height: 50%;"></div>
+                <div class="bar" style="height: 95%;"></div>
+                <div class="bar" style="height: 72%;"></div>
+              </div>
+              <div class="confidence-list" style="margin-top: 20px;">
+                <div class="confidence-item">
+                  <span>Strategic Actions</span>
+                  <strong>6 Active</strong>
+                </div>
+                <div class="confidence-item">
+                  <span>Automation Depth</span>
+                  <span class="confidence-tag">Calibrated</span>
+                </div>
+                <div class="confidence-item">
+                  <span>System Awareness</span>
+                  <span class="confidence-tag">Adaptive</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="trust">
+          <div class="reveal">
+            <h2 class="section-title">Reliability that earns trust.</h2>
+            <p class="section-subtitle">
+              The system stays quiet until you need it. Continuous verification, resilience protocols, and transparent
+              insights keep the intelligence grounded and dependable.
+            </p>
+          </div>
+          <div class="feature-grid">
+            <article class="feature-card reveal">
+              <h3>Integrity Mesh</h3>
+              <p>Every action is verified across a distributed reasoning layer before it reaches you.</p>
+            </article>
+            <article class="feature-card reveal">
+              <h3>Fail-Safe Continuity</h3>
+              <p>Redundant cognitive cores maintain service even in extreme operating conditions.</p>
+            </article>
+            <article class="feature-card reveal">
+              <h3>Transparent Control</h3>
+              <p>See exactly why a decision is made, with clear narrative and data provenance.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="cta" id="activate">
+          <div class="reveal">
+            <h2 class="section-title">Activate the next-generation assistant.</h2>
+            <p class="section-subtitle">
+              Step into an intelligence that feels present, anticipatory, and built to elevate every decision you make.
+            </p>
+          </div>
+          <div class="cta-card reveal">
+            <h3>Upgrade your reality with JARVIS.</h3>
+            <p class="section-subtitle">Private onboarding now open for a select group of visionaries.</p>
+            <div class="cta-actions">
+              <a class="btn-primary" href="#top">Initiate Core Sync</a>
+              <a class="btn-secondary" href="#capabilities">Review Capabilities</a>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        JARVIS Systems. Crafted to feel intelligent, calm, and just ahead of you.
+      </footer>
+    </div>
+
+    <script>
+      const reveals = document.querySelectorAll(".reveal");
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("visible");
+            }
+          });
+        },
+        { threshold: 0.2 }
+      );
+
+      reveals.forEach((el) => observer.observe(el));
+    </script>
+  </body>
+</html>
