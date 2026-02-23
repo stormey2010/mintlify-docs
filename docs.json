@@ -4,8 +4,8 @@
   "name": "Jarvis Documentation",
   "colors": {
     "primary": "#1a67ba",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "light": "#1a67ba",
+    "dark": "#154780"
   },
   "favicon": "/favicon.svg",
   "navigation": {
